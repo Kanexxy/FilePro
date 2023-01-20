@@ -1,6 +1,9 @@
 from flask import Flask
+from filepro.routes.files.file import file_blueprint
 
 app = Flask(__name__)
+
+app.register_blueprint(file_blueprint)
 
 @app.route("/")
 def hello_world():
