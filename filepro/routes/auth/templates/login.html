@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <div class="h-100 d-flex justify-content-center flex-column" style="padding-bottom: 40rem">
+        <form class="align-self-center w-25" method="post">
+            <h1 class="d-flex justify-content-center display-6 pb-5">Login</h1>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email or Username</label>
+                <input type="text" required name="user_identifier" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input type="password" required name="password" class="form-control" id="exampleInputPassword1">
+            </div>
+            <div id="emailHelp" class="form-text text-white fs-5">Dont have an account? <a href="/signup">Sign up</a></div>
+            <div id="emailHelp" class="form-text text-danger fs-5">{{ errormsg }}</div>
+            <button type="submit" class="btn btn-primary w-25 mt-3">Login</button>
+        </form>
+    </div>
+{% endblock %}
