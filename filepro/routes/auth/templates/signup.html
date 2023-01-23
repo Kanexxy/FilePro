@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+    <div class="h-100 d-flex justify-content-center flex-column" style="padding-bottom: 15vh">
+        <form class="align-self-center w-25" method="post">
+            <h1 class="d-flex justify-content-center display-6 pb-5">Sign Up</h1>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email</label>
+                <input type="email" required name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Username</label>
+                <input type="text" required name="username" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input type="password" required name="password" class="form-control" id="exampleInputPassword1">
+            </div>
+            <div id="emailHelp" class="form-text text-white fs-5">Already have an account? <a href="/login">Log in</a></div>
+            <div id="errormsg" class="form-text text-danger fs-5">{{ errormsg }}</div>
+            <button type="submit" class="btn btn-primary w-50 mt-3">Create Account</button>
+        </form>
+    </div>
+{% endblock %}

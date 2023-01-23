@@ -19,8 +19,10 @@ def login():
         errormsg = "Wrong username/email or password!"
     return render_template("login.html", errormsg=errormsg)
 
+
 @auth_blueprint.route("/signup", methods=["GET", "POST"])
 def signup():
+    errormsg = ""
     if request.method == "POST":
         ...
     return render_template("signup.html")
