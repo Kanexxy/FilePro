@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 <head>
-    {% block head %}
     <style>
     </style>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{url_for("static", filename="css/bootstrap.min.css")}}">
     <script src="{{url_for("static", filename="js/bootstrap.bundle.min.js")}}"></script>
+    <script src="{{url_for("static", filename="js/utils.js")}}" defer></script>
     <title>{% block title %}{% endblock %} - FilePro</title>
+    {% block head %}
     {% endblock %}
 </head>
 <body class="h-100 text-white">
@@ -29,11 +30,11 @@
           </div>
         </nav>
     </div>
-    <div id="content" class="bg-dark" style="height: calc(100vh - 66px)">{% block content %}
-
-      {% endblock %}</div>
+    <div id="content" class="bg-dark" style="height: calc(100vh - 66px)">
+      {% block content %}
+      {% endblock %}
+    </div>
     <div id="footer">
-
         {% block footer %}
         {% endblock %}
     </div>
