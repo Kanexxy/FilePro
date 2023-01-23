@@ -12,7 +12,7 @@ def login():
         data = get_user_data(request.form.get("user_identifier"))
         password = md5(request.form.get("password").encode()).hexdigest()
         if data:
-            if password == data.password:
+            if password == data.password and data.id != "1":  # check if anonymous
                 session["password"] = password
                 session["email"] = data.email
                 return redirect(f"/user/{data.username}")
