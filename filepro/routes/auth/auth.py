@@ -41,6 +41,6 @@ def signup():
             return render_template("signup.html", errormsg="Username is already taken!")
         create_user(username, password, email)
         session["password"] = password
-        session["email"] = email
+        session["username"] = username
         return redirect(f"/user/{username}")
     return render_template("signup.html")
