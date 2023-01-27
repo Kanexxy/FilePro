@@ -3,6 +3,7 @@ CREATE TABLE "files" (
 	"userid"	INTEGER,
 	"uuid"	TEXT UNIQUE,
 	"filename"	TEXT,
+	"upload_date" TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 

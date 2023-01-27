@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, send_from_directory
-
 general_blueprint = Blueprint("general_blueprint", __name__, template_folder="templates")
 
 
-@general_blueprint.route("/")
+@general_blueprint.route("/", methods=["GET"])
 def general():
     return render_template("general.html")
 

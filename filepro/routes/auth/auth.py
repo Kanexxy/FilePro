@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, session, request, redirect
 from filepro.utils.db_utils import get_user_data, create_user
+# from filepro.utils.utils import is_logged_in
 import re
 from hashlib import md5
-
 
 EMAIL_REGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
 auth_blueprint = Blueprint("auth_blueprint", __name__, template_folder="templates")
@@ -44,3 +44,9 @@ def signup():
         session["username"] = username
         return redirect(f"/user/{username}")
     return render_template("signup.html")
+
+
+@auth_blueprint.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
