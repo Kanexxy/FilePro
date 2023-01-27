@@ -3,6 +3,7 @@
 {% block head %}
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
 {% endblock %}
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -23,122 +24,101 @@
 </nav>
 {% endblock %}
 {% block content %}
+<div class="w-100 d-flex justify-content-center">
+    <div style="width: 30vw;" class="d-flex flex-column">
+         <div class="pt-5 text-center" style="font-style: italic; font-family: 'Eras_Bold_ITC'; font-size: 70px; color: #ff253a";>FilePro</div>
+        <div class="text-lg-center">
+            <span class="pe-1" style="font-style: italic; font-family: Eras_Bold_ITC">FilePro</span>
+            is a file hosting service where you can upload a file and get a URL back at which you can retrieve your file any time.
+            You can either upload a file as anonymous or with your account.
+            You are the only person who has access to a file if you have uploaded with an account.
+        </div>
+        <hr>
+        <button class="fs-1 p-3 border-2 border-white bg-black text-center rounded text-white mt-3 mb-2" onclick="getFile()">
+            <i class="fa-solid fa-user-secret pe-3 align-self-center"></i>Upload a File as Anonymous
+        </button>
+        <div style='height: 0px;width: 0px; overflow:hidden;'><input id="upfile" type="file" value="upload" name="file" onchange="handleUpload()" /></div>
+        <div>
+            <div id="p-bar-container" class="pb-1" style="height: 30px"></div>
+            <code id="upload-error-text" class="text-white" style="display: none"></code>
+            <span id="file-name"></span>
+            <div id="url-field-container"></div>
+        </div>
+    </div>
+</div>
+<script >
+    const upFileEl = document.getElementById("upfile");
+    const pBarContainer = document.getElementById("p-bar-container");
+    const errorText = document.getElementById("upload-error-text");
+    const fileNameEl = document.getElementById("file-name");
+    const urlFieldContainer = document.getElementById("url-field-container");
 
-<style>
-    #yourBtn {
-        font-family: calibri;
-        width: 30vw;
-        padding: 1vh;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border: 1px solid #ffffff;
-        text-align: center;
-        background-color: #000000;
-        color: #ffffff ;
-        cursor: pointer;
+    const progressBar = new PBar(pBarContainer);
+    progressBar.toggleVisible()
+
+    const urlField = new UrlField(urlFieldContainer);
+    urlField.toggleVisible();
+
+    function setupUpload() {
+        // Reset Progress Bar
+        progressBar.setRelProgress(0);
+        progressBar.setColor("#0d6efd");
+        if (!progressBar.isVisible) {
+            progressBar.toggleVisible();
+        }
+
+        // Reset Url Field
+        urlField.setUrl("");
+        if (urlField.isVisible) {
+            urlField.toggleVisible();
+        }
+
+        errorText.style.display = "none";
+        fileNameEl.innerHTML = "";
+
+        let files = upFileEl.files;
+        let form = new FormData();
+        form.append('file', files[0]);
+
+        return form
     }
-</style>
 
-    <div class="d-flex justify-content-center pt-5" style="font-style: italic; font-family: 'Eras_Bold_ITC'; font-size: 70px; color: #ff253a";>FilePro</div>
-    <div class="d-flex justify-content-center align-self-center">
-        <p class="w-25 text-lg-center"><span class="pe-1" style="font-style: italic; font-family: Eras_Bold_ITC">FilePro</span>is a file hosting service where you can upload a file and get a URL back at which you can retrieve your file any time. You can either upload a file as anonymous or with your account. You are the only person who has access to a file if you have uploaded with an account.</p>
-    </div>
+    async function handleUpload() {
+        let formData = await setupUpload();
 
-    <div class="d-flex flex-column justify-content-center align-self-center">
-        <div class="d-flex justify-content-center pb-2" style="">
-            <div id="yourBtn" class="fs-1" onclick="getFile()"><i class="fa-solid fa-user-secret pe-3 align-self-center"></i>-  Click to Upload a File as Anonymous</div>
-            <div style='height: 0px;width: 0px; overflow:hidden;'><input id="upfile" type="file" value="upload" name="file" onchange="handleUpload()" /></div>
-        </div>
+        let req = await axios.request({
+            url: "/anonupload",
+            method: "POST",
+            data: formData,
+            onUploadProgress: (p) => {
+                progressBar.setRelProgress(
+                    (Math.round((p.loaded * 100) / p.total))
+                );
+            }
+        });
 
-        <div class="d-flex flex-column justify-content-center">
-            <div class="align-self-center" style="width: 30vw">
-                <div class="progress" role="progressbar" id="p-bar-container" style="display: none; height: 30px">
-                    <div class="progress-bar align-self-center" style="width: 0%; height: 30px;" id="p-bar">0%</div>
-                </div>
-                <span id="upload_success_text" class="text-success text-lg-center fs-4" style="display: none">Success! Your file was successfully uploaded and ist now available at:<br></span>
-                <span id="upload_error_text" class="text-danger text-lg-center fs-4" style="display: none"></span>
-                <div class="input-group mt-2" id="url-field-container" style="display: none">
-                    <button id="copy-btn" class="rounded-start btn btn-black bg-black text-white border-1 border-white"><i class="fa-solid fa-copy"></i></button>
-                    <input id="url-field" type="text" class="form-control rounded-end bg-dark text-white" readonly>
-                </div>
-            </div>
-        </div>
-    </div>
+        let data = await req.data;
 
-    <script defer>
-        const upFileEl = document.getElementById("upfile");
-        const urlFieldContainer = document.getElementById("url-field-container");
-        const urlField = document.getElementById("url-field");
-        const pBarContainer = document.getElementById("p-bar-container");
-        const pBar = document.getElementById("p-bar");
-        const errorText = document.getElementById("upload_success_text");
-        const successText = document.getElementById("upload_error_text");
-        const copyBtn = document.getElementById("copy-btn")
-
-        function copyLink() {
-            urlField.select();
-            urlField.setSelectionRange(0, 99999); // For mobile devices
-            navigator.clipboard.writeText(urlField.value);
-            let tooltip = new bootstrap.Tooltip(copyBtn, {
-                placement: "bottom",
-                title: "Copied!"
-            });
-            tooltip.toggleEnabled = false;
-            tooltip.show();
-            setTimeout(() => {
-                tooltip.hide();
-            }, 100)
-
+        if (!data.error) {
+            progressBar.setRelProgress(100);
+            progressBar.toggleVisible();
+            urlField.setUrl(data.full_url);
+            if (!urlField.isVisible) {
+                urlField.toggleVisible();
+            }
+            fileNameEl.innerHTML = data.filename;
+        } else {
+            progressBar.setRelProgress(100);
+            progressBar.setColor("#dc3545");
+            errorText.innerHTML = "Error: "  + data.error;
+            errorText.style.display = "block";
         }
-        function getFile() {
-            upFileEl.click();
-        }
+    }
 
-        function setPbar(percentage) {
-            pBar.style.width = `${percentage}%`;
-            pBar.innerHTML = `${percentage}%`;
-        }
+    function getFile() {
+        upFileEl.click();
+    }
 
-        function handleUpload() {
-            const files = upFileEl.files;
-            const form = new FormData();
-            form.append('file', files[0]);
-
-            urlField.value = "";
-            pBarContainer.style.display = "block";
-            setPbar(0);
-
-            axios.request({
-                url: "/anonupload",
-                method: "POST",
-                data: form,
-                onUploadProgress: (p) => {
-                    setPbar(Math.round((p.loaded * 100) / p.total));
-                }
-            })
-                .then(data => {
-                    console.log(data.data);
-                    if (!data.data.error) {
-                        setPbar(100);
-                        successText.style.display = "block"
-                        pBarContainer.style.container = "none";
-                        urlFieldContainer.style.display = "flex";
-                        urlField.value = data.data.full_url;
-                    } else {
-                        setPbar(0);
-                        errorText.innerHTML = "Error: "  + data.data.error;
-                        errorText.style.display = "block";
-                    }
-                } )
-                .catch(error => {
-                    console.log(error)
-                })
-        }
-
-        upFileEl.onchange = handleUpload;
-        copyBtn.onclick = copyLink;
-
-
-
-    </script>
+    upFileEl.onchange = handleUpload;
+</script>
 {% endblock %}

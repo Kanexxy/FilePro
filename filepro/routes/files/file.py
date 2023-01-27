@@ -41,5 +41,5 @@ def anon_download(uuid):
     names = get_file_name(uuid)
     print(names)
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'], names.uuid, download_name=names.filename
+        current_app.config['UPLOAD_FOLDER'], names.uuid, download_name=names.filename, as_attachment=True
     )
