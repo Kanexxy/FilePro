@@ -37,88 +37,19 @@
         <button class="fs-1 p-3 border-2 border-white bg-black text-center rounded text-white mt-3 mb-2" onclick="getFile()">
             <i class="fa-solid fa-user-secret pe-3 align-self-center"></i>Upload a File as Anonymous
         </button>
-        <div style='height: 0px;width: 0px; overflow:hidden;'><input id="upfile" type="file" value="upload" name="file" onchange="handleUpload()" /></div>
-        <div>
-            <div id="p-bar-container" class="pb-1" style="height: 30px"></div>
-            <code id="upload-error-text" class="text-white" style="display: none"></code>
-            <span id="file-name"></span>
-            <div id="url-field-container"></div>
-        </div>
+        <div style='height: 0px;width: 0px; overflow:hidden;'><input id="upfile" type="file" value="upload" name="file" /></div>
+        <div id="progress-container"></div>
     </div>
 </div>
-<script >
+<script>
+    const progressContainer = document.getElementById("progress-container");
     const upFileEl = document.getElementById("upfile");
-    const pBarContainer = document.getElementById("p-bar-container");
-    const errorText = document.getElementById("upload-error-text");
-    const fileNameEl = document.getElementById("file-name");
-    const urlFieldContainer = document.getElementById("url-field-container");
 
-    const progressBar = new PBar(pBarContainer);
-    progressBar.toggleVisible()
-
-    const urlField = new UrlField(urlFieldContainer);
-    urlField.toggleVisible();
-
-    function setupUpload() {
-        // Reset Progress Bar
-        progressBar.setRelProgress(0);
-        progressBar.setColor("#0d6efd");
-        if (!progressBar.isVisible) {
-            progressBar.toggleVisible();
-        }
-
-        // Reset Url Field
-        urlField.setUrl("");
-        if (urlField.isVisible) {
-            urlField.toggleVisible();
-        }
-
-        errorText.style.display = "none";
-        fileNameEl.innerHTML = "";
-
-        let files = upFileEl.files;
-        let form = new FormData();
-        form.append('file', files[0]);
-
-        return form
-    }
-
-    async function handleUpload() {
-        let formData = await setupUpload();
-
-        let req = await axios.request({
-            url: "/anonupload",
-            method: "POST",
-            data: formData,
-            onUploadProgress: (p) => {
-                progressBar.setRelProgress(
-                    (Math.round((p.loaded * 100) / p.total))
-                );
-            }
-        });
-
-        let data = await req.data;
-
-        if (!data.error) {
-            progressBar.setRelProgress(100);
-            progressBar.toggleVisible();
-            urlField.setUrl(data.full_url);
-            if (!urlField.isVisible) {
-                urlField.toggleVisible();
-            }
-            fileNameEl.innerHTML = data.filename;
-        } else {
-            progressBar.setRelProgress(100);
-            progressBar.setColor("#dc3545");
-            errorText.innerHTML = "Error: "  + data.error;
-            errorText.style.display = "block";
-        }
-    }
-
+    const uploader = new Uploader("/anonupload", progressContainer, upFileEl);
     function getFile() {
         upFileEl.click();
     }
 
-    upFileEl.onchange = handleUpload;
+    upFileEl.onchange = () => uploader.upload();
 </script>
 {% endblock %}

@@ -1,4 +1,3 @@
-
 class PBar {
     constructor(containerEl) {
         this.containerEl = containerEl;
@@ -125,5 +124,98 @@ class UrlField {
     remove() {
         this.groupEl.remove();
     }
+}
 
+class Uploader {
+    constructor(endpoint, containerEl, fileInputEl) {
+        this.endpoint = endpoint;
+
+        this.containerEl = containerEl;
+        this.fileInputEl = fileInputEl;
+
+        let pBarCont =  document.createElement("div");
+        pBarCont.style.height = "30px";
+        this.pBar = new PBar(pBarCont);
+        this.pBar.toggleVisible();
+
+        this.errorEl = document.createElement("code");
+        this.errorEl.style.color = "white";
+        this.errorEl.style.display = "none";
+
+        this.fileNameEl = document.createElement("span");
+
+        let urlFieldCont = document.createElement("div");
+        this.urlField = new UrlField(urlFieldCont);
+        this.urlField.toggleVisible();
+
+        this.containerEl.appendChild(pBarCont);
+        this.containerEl.appendChild(this.errorEl);
+        this.containerEl.appendChild(this.fileNameEl);
+        this.containerEl.appendChild(urlFieldCont);
+    }
+    setup() {
+        this.pBar.setRelProgress(0);
+        this.pBar.setColor("#0d6efd");
+        if (!this.pBar.isVisible) {
+            this.pBar.toggleVisible();
+        }
+
+        this.urlField.setUrl("");
+        if (this.urlField.isVisible) {
+            this.urlField.toggleVisible();
+        }
+
+        this.errorEl.style.display = "none";
+        this.fileNameEl.innerHTML = "";
+    }
+
+    async upload() {
+        this.setup();
+
+        let files = this.fileInputEl.files;
+        let form = new FormData();
+        form.append('file', files[0]);
+
+        let req = await axios.post(this.endpoint, form, {
+            onUploadProgress: (p) => {
+                this.pBar.setRelProgress(
+                    (Math.round((p.loaded * 100) / p.total))
+                );
+            }
+        })
+
+        let data = await req.data;
+        console.log(data);
+
+        if (!data.error) {
+            this.pBar.setRelProgress(100);
+            this.pBar.toggleVisible();
+            this.urlField.setUrl(data.full_url);
+            this.urlField.toggleVisible();
+            this.fileNameEl.innerHTML = data.filename;
+        } else {
+            this.pBar.setRelProgress(100);
+            this.pBar.setColor("#dc3545");
+            this.errorEl.innerHTML = "Error: "  + data.error;
+            this.errorEl.style.display = "block";
+        }
+    }
+
+
+
+    toggleVisible() {
+        if (this.containerEl.style.display == "none") {
+            this.containerEl.style.display = "block";
+            this.isVisible = true;
+        } else {
+            this.containerEl.style.display = "none";
+            this.isVisible = false;
+        }
+    }
+
+    remove() {
+        while (this.containerEl.firstChild) {
+            this.containerEl.remove();
+        }
+    }
 }
