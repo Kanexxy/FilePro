@@ -153,7 +153,8 @@ class Uploader {
         this.containerEl.appendChild(this.fileNameEl);
         this.containerEl.appendChild(urlFieldCont);
     }
-    setup() {
+
+    #setup() {
         this.pBar.setRelProgress(0);
         this.pBar.setColor("#0d6efd");
         if (!this.pBar.isVisible) {
@@ -170,7 +171,7 @@ class Uploader {
     }
 
     async upload() {
-        this.setup();
+        this.#setup();
 
         let files = this.fileInputEl.files;
         let form = new FormData();
@@ -185,7 +186,6 @@ class Uploader {
         })
 
         let data = await req.data;
-        console.log(data);
 
         if (!data.error) {
             this.pBar.setRelProgress(100);
