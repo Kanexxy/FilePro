@@ -142,7 +142,9 @@ class Uploader {
         this.errorEl.style.color = "white";
         this.errorEl.style.display = "none";
 
-        this.fileNameEl = document.createElement("span");
+        this.fileNameEl = document.createElement("div");
+        this.fileNameEl.style.overflowX = "clip";
+        this.fileNameEl.style.textOverflow = "ellipsis";
 
         let urlFieldCont = document.createElement("div");
         this.urlField = new UrlField(urlFieldCont);
