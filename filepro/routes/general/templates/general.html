@@ -17,8 +17,16 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/">Home</a>
         </li>
+          {% if logged%}
+          <li class="nav-item">
+              <a class="nav-link" href="/user/{{ username }}">Dashboard</a>
+          </li>
       </ul>
+              <button class="btn btn-outline-danger" onclick="window.location.href = '/logout'">Logout</button>
+        {% else %}
+        </ul>
         <button class="btn btn-outline-success" onclick="window.location.href = '/login'">Login</button>
+        {% endif %}
     </div>
   </div>
 </nav>
@@ -38,18 +46,28 @@
             <i class="fa-solid fa-user-secret pe-3 align-self-center"></i>Upload a File as Anonymous
         </button>
         <div style='height: 0px;width: 0px; overflow:hidden;'><input id="upfile" type="file" value="upload" name="file" /></div>
+        <button class="fs-1 p-3 border-2 border-white bg-black text-center rounded text-white mt-3 mb-2" onclick="{% if logged%}getFile2(){% else %}window.location='/login'{% endif %}">
+            <i class="fa-solid fa-user pe-3 align-self-center"></i>Upload a File as {{ username }}
+        </button>
+        <div style='height: 0px;width: 0px; overflow:hidden;'><input id="upfile2" type="file" value="upload" name="file" /></div>
         <div id="progress-container"></div>
     </div>
 </div>
 <script>
     const progressContainer = document.getElementById("progress-container");
     const upFileEl = document.getElementById("upfile");
+    const upFileEl2 = document.getElementById("upfile2");
 
     const uploader = new Uploader("/anonupload", progressContainer, upFileEl);
     function getFile() {
         upFileEl.click();
     }
 
+    const uploader2 = new Uploader("/userupload", progressContainer, upFileEl2);
+    function getFile2() {
+        upFileEl2.click();
+    }
     upFileEl.onchange = () => uploader.upload();
+    upFileEl2.onchange = () => uploader2.upload();
 </script>
 {% endblock %}

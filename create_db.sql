@@ -4,6 +4,7 @@ CREATE TABLE "files" (
 	"uuid"	TEXT UNIQUE,
 	"filename"	TEXT,
 	"upload_date" TEXT,
+	"is_public" INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 

@@ -203,8 +203,6 @@ class Uploader {
         }
     }
 
-
-
     toggleVisible() {
         if (this.containerEl.style.display == "none") {
             this.containerEl.style.display = "block";

@@ -14,7 +14,12 @@
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="/">Home</a>
         </li>
+          <li class="nav-item">
+              <a class="nav-link active" href="/user/{{ username }}">Dashboard</a>
+          </li>
       </ul>
+        <button class="btn btn-outline-danger" onclick="window.location.href = '/logout'">Logout</button>
+        <!--
         <div class="btn-group dropstart">
   <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-underline: none; text-decoration: none; color: #ffffff">
     Account
@@ -26,10 +31,84 @@
     <li><a class="dropdown-item text-danger" href="/logout">Log out</a></li>
   </ul>
 </div>
-
+-->
     </div>
   </div>
 </nav>
 {% endblock %}
 {% block content %}
+{% if files %}
+<div class="d-flex justify-content-center align-self-center pt-5">
+<table class="table table-dark w-75">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Filename</th>
+      <th scope="col">UUID</th>
+      <th scope="col">Upload Date</th>
+        <th scope="col">Publicity</th>
+        <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for file in files %}
+    <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td><a href="{{ url_for('file_blueprint.user_download', username=username, uuid=file.uuid) }}">{{ file.filename }}</a><i class="fa-solid fa-copy ms-2" style="cursor: pointer;" onclick="copyLink(this)"></i></td>
+        <td>{{ file.uuid[:36] }}</td>
+        <td>{{ file.date_uploaded[:19] }}</td>
+        <td>
+            <select id="publicity-selction" class="form-select bg-dark text-white" onchange="changePub(this, '{{ file.uuid }}')" autocomplete="no">
+                <option value="public" {% if file.is_public %} selected {% endif %}>Public</option>
+                <option value="private" {% if not file.is_public  %} selected {% endif %}>Private</option>
+            </select>
+        </td>
+        <td class="d-flex justify-content-end"><button type="button" class="btn btn-outline-danger" onclick="toggleModal('{{ file.uuid }}')">Delete</button></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="modal fade" id="delete-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5 text-danger" id="exampleModalLabel">Delete</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">Do you really want to <span class="text-decoration-underline">permanently</span> delete this File?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
+        <button type="button" id="delete-btn" class="btn btn-danger">Delete File</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+    function changePub(element, uuid) {
+        fetch(`/user/file/${uuid}/set_status/${element.value}`)
+    }
+
+    const deleteModal = new bootstrap.Modal('#delete-modal');
+    const deleteBtn = document.getElementById('delete-btn');
+
+    function toggleModal(uuid) {
+        deleteBtn.onclick = () => {
+            window.location = `/delete/${uuid}`
+        }
+        deleteModal.show();
+    }
+
+    function copyLink(element) {
+        let linkEl = element.previousElementSibling;
+        element.style.color = "#0d6efd";
+        navigator.clipboard.writeText(linkEl.href);
+        setTimeout(_ => {
+            element.style.color = "white";
+        }, 200)
+    }
+</script>
+{% else %}
+    <h1 class="d-flex justify-content-center align-self-center pt-5">No files uploaded yet.</h1>
+{% endif %}
 {% endblock %}

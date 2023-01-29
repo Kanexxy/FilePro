@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, session, request, redirect
 from filepro.utils.db_utils import get_user_data, create_user
-# from filepro.utils.utils import is_logged_in
 import re
 from hashlib import md5
 

@@ -14,3 +14,4 @@ class File:
     uuid: str
     filename: str
     date_uploaded: str
+    is_public: int
