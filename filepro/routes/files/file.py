@@ -1,10 +1,27 @@
 import os
-from flask import Blueprint, render_template, session, redirect, request, current_app, send_from_directory, abort
+from flask import (
+    Blueprint,
+    render_template,
+    session,
+    redirect,
+    request,
+    current_app,
+    send_from_directory,
+    abort,
+)
 from filepro.utils.utils import is_logged_in, get_file_suffix
-from filepro.utils.db_utils import get_user_data, register_file, get_file_data, get_user_files, set_file_is_public, delete_file_db
+from filepro.utils.db_utils import (
+    get_user_data,
+    register_file,
+    get_file_data,
+    get_user_files,
+    set_file_is_public,
+    delete_file_db,
+)
 from werkzeug.utils import secure_filename
 from pathlib import Path
 from uuid import uuid4
+
 file_blueprint = Blueprint("file_blueprint", __name__, template_folder="templates")
 
 
@@ -15,25 +32,27 @@ def open_user_dashboard(url_username):
         print(session, is_logged_in(session))
         return redirect("/login")
 
-    return render_template("dashboard.html", files=get_user_files(username), username=username)
+    return render_template(
+        "dashboard.html", files=get_user_files(username), username=username
+    )
 
 
 @file_blueprint.route("/anonupload", methods=["POST"])
 def anon_upload():
-    if 'file' not in request.files:
+    if "file" not in request.files:
         return {"error": "no file transmitted"}
-    file = request.files['file']
-    if file.filename == '':
+    file = request.files["file"]
+    if file.filename == "":
         return {"error": "no file selected"}
     if file:
         old_filename = secure_filename(file.filename)
         new_filename = f"{uuid4()}{get_file_suffix(old_filename)}"
-        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], new_filename))
+        file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], new_filename))
         register_file(new_filename, old_filename, get_user_data("anonymous").id, 1)
         return {
             "filename": old_filename,
             "uuid_filename": new_filename,
-            "full_url": f"{request.host_url}file/{new_filename}"
+            "full_url": f"{request.host_url}file/{new_filename}",
         }
     return redirect("/")
 
@@ -42,21 +61,21 @@ def anon_upload():
 def user_upload():
     if not is_logged_in(session):
         return {"error": "Please log in first."}
-    if 'file' not in request.files:
+    if "file" not in request.files:
         return {"error": "no file transmitted"}
-    file = request.files['file']
-    if file.filename == '':
+    file = request.files["file"]
+    if file.filename == "":
         return {"error": "no file selected"}
     if file:
         username = session.get("username")
         old_filename = secure_filename(file.filename)
         new_filename = f"{uuid4()}{get_file_suffix(old_filename)}"
-        file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], new_filename))
+        file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], new_filename))
         register_file(new_filename, old_filename, get_user_data(username).id, 0)
         return {
             "filename": old_filename,
             "uuid_filename": new_filename,
-            "full_url": f"{request.host_url}user/{username}/file/{new_filename}"
+            "full_url": f"{request.host_url}user/{username}/file/{new_filename}",
         }
     return redirect("/")
 
@@ -70,7 +89,10 @@ def anon_download(uuid):
         return redirect("/login")
 
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'], filedata.uuid, download_name=filedata.filename, as_attachment=True
+        current_app.config["UPLOAD_FOLDER"],
+        filedata.uuid,
+        download_name=filedata.filename,
+        as_attachment=True,
     )
 
 
@@ -85,7 +107,10 @@ def user_download(username, uuid):
         if filedata.userid != get_user_data(session.get("username")).id:
             return redirect("/login")
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'], filedata.uuid, download_name=filedata.filename, as_attachment=True
+        current_app.config["UPLOAD_FOLDER"],
+        filedata.uuid,
+        download_name=filedata.filename,
+        as_attachment=True,
     )
 
 

@@ -29,13 +29,19 @@ def signup():
         password = md5(request.form.get("password").encode()).hexdigest()
         username = request.form.get("username")
         if not re.fullmatch(EMAIL_REGEX, email):
-            return render_template("signup.html", errormsg="Please suppy a valid email!")
+            return render_template(
+                "signup.html", errormsg="Please suppy a valid email!"
+            )
         if get_user_data(email):
             return render_template("signup.html", errormsg="Email already registered!")
         if len(username) < 3:
-            return render_template("signup.html", errormsg="Username has to be at least 3 characters long!")
+            return render_template(
+                "signup.html", errormsg="Username has to be at least 3 characters long!"
+            )
         if re.fullmatch(EMAIL_REGEX, username):
-            return render_template("signup.html", errormsg="Please do not supply an email as username!")
+            return render_template(
+                "signup.html", errormsg="Please do not supply an email as username!"
+            )
         if get_user_data(username):
             return render_template("signup.html", errormsg="Username is already taken!")
         create_user(username, password, email)

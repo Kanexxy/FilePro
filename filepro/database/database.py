@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 
+
 def get_db_path() -> Path:
     return Path(__file__).parent / "filepro.db"
 
